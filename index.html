@@ -1,0 +1,179 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MP3 Player</title>
+    <script src="mediaElement/jquery-1.9.1.min.js"></script>
+    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
+    <script src="id3v2-new.js"></script>
+    <script>
+        $(function () {
+            var playlist = [];
+
+            var player = $("audio"),
+                empty = true,
+                file = $("#file").change(function () {
+                    var files = this.files;
+                    var mp3 = player[0].canPlayType("audio/mpeg") == "maybe",
+                        ogg = player[0].canPlayType("audio/ogg") == "maybe";
+                    var i = 0;
+                    var file, filename, blobUrl;
+                    var audio = $('<audio preload="metadata" />').on("loadedmetadata", function () {
+                        var duration = audio.prop("duration");
+                        var second = (duration % 60).toFixed();
+                        if (second.toString().length == 1)
+                            second = "0" + second;
+                        readFile(file, function (tag) {
+                            $("tbody").append(
+                                $("<tr />")
+                                .data("url", blobUrl)
+                                .dblclick(function () {
+                                    var element = player.on("playing", function () {
+                                        this.currentTime = 3;
+                                        this.currentTime = 0;
+                                        $(this).unbind("playing");
+                                    }).attr("src", $(this).data("url"))[0]
+                                    element.play();
+                                    $("tr.info").toggleClass("info");
+                                    $(this).toggleClass("info");
+                                })
+                                .append($("<td />"))
+                                .append($("<td />").text(tag["frames"]["TIT2"] ? tag["frames"]["TIT2"]["value"] : filename.substr(0, filename.length - 4)))
+                                .append($("<td />").text(tag["frames"]["TALB"] ? tag["frames"]["TALB"]["value"] : "Unknown"))
+                                .append($("<td />").text((duration > 3600 ? parseInt(duration / 3600) + ":" : "") +
+                                    (duration > 60 ? parseInt(duration / 60) : "0") + ":" + second))
+                                .append($("<td />").text(tag["frames"]["TPE1"] ? tag["frames"]["TPE1"]["value"] : "Unknown"))
+                                .append($("<td />").text(tag["frames"]["TCON"] ? tag["frames"]["TCON"]["value"] : "Unknown"))
+                            );
+                            loadSong();
+                        });
+                    });
+                    function loadSong() {
+                        if (i < files.length) {
+                            file = files[i++];
+                            filename = file.name;
+                            if (playlist.indexOf(filename) == -1 &&
+                                (filename.indexOf(".mp3") == filename.length - 4 && mp3) ||
+                                ((filename.indexOf(".ogg") == filename.length - 4 ||
+                                filename.indexOf(".oga") == filename.length - 4) && ogg)) {
+                                playlist.push(filename);
+                                if (empty) {
+                                    empty = false;
+                                    $("#import").appendTo($("header"));
+                                    $("#guide").remove();
+                                }
+                                blobUrl = URL.createObjectURL(file);
+                                audio.attr("src", blobUrl);
+                            }
+                        }
+                    }
+                    loadSong();
+                });
+
+            $("#import").click(function () {
+                file.click();
+            });
+
+            $("filter").change(function () {
+                $("tbody tr").each(function () {
+
+                });
+            });
+        });
+    </script>
+    <style>
+        .text-center {
+            text-align: center !important;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        header {
+            height: 70px;
+            width: 100%;
+        }
+
+        h1 {
+            float: left;
+            margin-left: 2%;
+        }
+
+        #filter {
+            float: right;
+            margin-top: 15px;
+            margin-right: 3%;
+        }
+
+        #file {
+            width: 0;
+            opacity: 0;
+        }
+
+        header > #import {
+            float: right;
+            margin-top: 15px;
+            margin-right: 10px;
+        }
+
+        section {
+            position: absolute;
+            top: 70px;
+            bottom: 35px;
+            width: 100%;
+            height: auto;
+        }
+
+        #guide {
+            position: absolute;
+            top: 30px;
+            bottom: 0;
+            width: 100%;
+            vertical-align: middle;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+        }
+
+        audio {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Media Libary</h1>
+        <input id="filter" class="search-query" type="text" placeholder="type to filter" />
+        <input id="file" type="file" multiple="" webkitdirectory="" mozdirectory="" directory="" accept="audio/*" />
+    </header>
+    <section>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <td class="span1"></td>
+                    <td class="span4">Title</td>
+                    <td class="span4">Album</td>
+                    <td class="span1">Duration</td>
+                    <td class="span2">Artist</td>
+                    <td class="span1">Genre</td>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <div id="guide" class="text-center">
+            <h3>Here is empty now</h3>
+            <button id="import" class="btn">Import</button>
+        </div>
+    </section>
+    <footer>
+        <audio controls=""></audio>
+    </footer>
+</body>
+</html>
