@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MP3 Player</title>
-    <script src="mediaElement/jquery-1.9.1.min.js"></script>
+    <script src="jquery-1.9.1.min.js"></script>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
     <script src="id3v2-new.js"></script>
     <script>
@@ -38,6 +38,13 @@
                                     element.play();
                                     $("tr.info").toggleClass("info");
                                     $(this).toggleClass("info");
+                                })
+                                .on("contextmenu", function (e) {
+                                    e.preventDefault();
+                                    var contextmenu = $('<table class="table table-hover" />')
+                                        .append($("<tr />").text("Play"))
+                                        .append($("<tr />").text("Delete"))
+                                        .append($("<tr />").text("Detail"));
                                 })
                                 .append($("<td />"))
                                 .append($("<td />").text(tag["frames"]["TIT2"] ? tag["frames"]["TIT2"]["value"] : filename.substr(0, filename.length - 4)))
