@@ -1,6 +1,6 @@
 ﻿<!DOCTYPE html>
 
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" manifest="/cache.manifest">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -98,7 +98,8 @@
     <header>
         <h1>Media Libary</h1>
         <input id="filter" class="search-query" type="text" placeholder="Type to filter" />
-        <input id="file" type="file" multiple="" webkitdirectory="" mozdirectory="" directory="" accept="audio/*" />
+        <input id="file" type="file" multiple="" accept="audio/*" />
+        <!--- TODO: add WebKit directory support:  webkitdirectory="" mozdirectory="" directory=""  -->
     </header>
     <section>
         <table class="table table-hover">
