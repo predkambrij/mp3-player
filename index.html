@@ -127,6 +127,24 @@
     <script>
         var playlist = [];
 
+        function deleteSelect() {
+            var nowplaying = player.attr("src");
+            $("tr.info:not(.hide)").each(function () {
+                var $this = $(this);
+                if ($this.data("url") == nowplaying)
+                    player.attr("src", "");
+                playlist.splice(playlist.indexOf($this.data("filename")), 1);
+                $this.remove();
+            });
+            if (playlist.length == 0) {
+                importButton.remove().appendTo(guidePanel).click(function () {
+                    fileSelector.click();
+                });
+                guidePanel.show();
+            }
+            lastSelected = null;
+        }
+
         var lastSelected;
         var contextmenu = $('<table />', { "class": "table table-hover table-bordered contextmenu" })
             .append($("<tr />", { "class": "menuitem" }).append($("<td />").text("Play"))
@@ -137,21 +155,7 @@
             .append($("<tr />", { "class": "menuitem" }).append($("<td />").text("Delete"))
             .click(function () {
                 contextmenu.hide();
-                var nowplaying = player.attr("src");
-                $("tr.info:not(.hide)").each(function () {
-                    var $this = $(this);
-                    if ($this.data("url") == nowplaying)
-                        player.attr("src", "");
-                    playlist.splice(playlist.indexOf($this.data("filename")), 1);
-                    $this.remove();
-                });
-                if (playlist.length == 0) {
-                    importButton.remove().appendTo(guidePanel).click(function () {
-                        fileSelector.click();
-                    });
-                    guidePanel.show();
-                }
-                lastSelected = null;
+                deleteSelect();
             }))
             .append($("<tr />", { "class": "menuitem" }).append($("<td />").text("Detail"))
             .click(function () {
@@ -195,7 +199,7 @@
                                     $(this).addClass("info");
                                 }
                                 if (e.shiftKey) {
-                                    var songItems = $('#playlist tr:not(.hide)');
+                                    var songItems = $("#playlist tr:not(.hide)");
                                     var startIndex = lastSelected ? songItems.index(lastSelected) : 0,
                                         endIndex = songItems.index(this);
                                     if (startIndex > endIndex) {
@@ -274,27 +278,34 @@
         });
 
         var filter = $("#filter");
-        filter.keyup(function (e) {
+        filter.keydown(function (e) {
             e.stopPropagation();
-            var value = filter.val();
-            if (value == "")
-                $("#playlist tr").show();
-            else {
-                var regex = new RegExp(value, "i");
-                $("#playlist tr").each(function () {
-                    var ele = $(this);
-                    if (ele.text().match(regex))
-                        ele.removeClass("hide");
-                    else
-                        ele.addClass("hide");
-                });
-            }
-        });
+        })
+            .keyup(function (e) {
+                e.stopPropagation();
+                var value = filter.val();
+                if (value == "")
+                    $("#playlist tr").show();
+                else {
+                    var regex = new RegExp(value, "i");
+                    $("#playlist tr").each(function () {
+                        var ele = $(this);
+                        if (ele.text().match(regex))
+                            ele.removeClass("hide");
+                        else
+                            ele.addClass("hide");
+                    });
+                }
+            });
 
-        $(document).keyup(function (e) {
+        $(document).keydown(function (e) {
             console.log(e.keyCode);
-            if(e.ctrlKey&&e.keyCode==65) // Ctrl + A
+            if (e.ctrlKey && e.keyCode == 65) { // Ctrl + A
                 e.preventDefault();
+                $("#playlist tr:not(.hide)").addClass("info");
+            }
+            else if (e.keyCode == 46) // Delete
+                deleteSelect();
         });
     </script>
     <script>
