@@ -63,6 +63,8 @@
             cursor: default;
         }
 
+
+
         #guide {
             position: absolute;
             top: 30px;
@@ -125,18 +127,31 @@
     <script>
         var playlist = [];
 
+        var lastSelected;
         var contextmenu = $('<table />', { "class": "table table-hover table-bordered contextmenu" })
             .append($("<tr />", { "class": "menuitem" }).append($("<td />").text("Play"))
             .click(function () {
-                $("tr.info").eq(0).dblclick();
                 contextmenu.hide();
+                $("tr.info:not(.hide)").eq(0).dblclick();
             }))
             .append($("<tr />", { "class": "menuitem" }).append($("<td />").text("Delete"))
             .click(function () {
-                $("tr.info").data()
-                if (player.attr("src") == $(this).data("url"))
-                    player.attr("src", "");
                 contextmenu.hide();
+                var nowplaying = player.attr("src");
+                $("tr.info:not(.hide)").each(function () {
+                    var $this = $(this);
+                    if ($this.data("url") == nowplaying)
+                        player.attr("src", "");
+                    playlist.splice(playlist.indexOf($this.data("filename")), 1);
+                    $this.remove();
+                });
+                if (playlist.length == 0) {
+                    importButton.remove().appendTo(guidePanel).click(function () {
+                        fileSelector.click();
+                    });
+                    guidePanel.show();
+                }
+                lastSelected = null;
             }))
             .append($("<tr />", { "class": "menuitem" }).append($("<td />").text("Detail"))
             .click(function () {
@@ -144,7 +159,7 @@
                 contextmenu.hide();
             }))
             .css({ "position": "fixed", "width": "auto", "height": "auto" })
-            .appendTo(document.body).hide();
+            .hide().appendTo(document.body);
         $(document).click(function (e) {
             if (contextmenu.find(e.target).length == 0)
                 contextmenu.hide();
@@ -155,13 +170,13 @@
         }).on("pause", function () {
             $("tr.success i").removeClass("icon-play").addClass("icon-pause");
         }),
-            empty = true,
-            file = $("#file").change(function () {
+            fileSelector = $("#file").change(function () {
                 var files = this.files;
                 var mp3 = player[0].canPlayType("audio/mpeg") == "maybe",
                     ogg = player[0].canPlayType("audio/ogg") == "maybe";
                 var i = 0;
                 var file, filename, blobUrl;
+                var empty = playlist.length == 0;
                 var audio = $('<audio preload="metadata" />').on("loadedmetadata", function () {
                     var duration = audio.prop("duration");
                     var second = (duration % 60).toFixed();
@@ -171,10 +186,29 @@
                         $("#playlist").append(
                             $("<tr />")
                             .data("url", blobUrl)
+                            .data("filename", filename)
                             .click(function (e) {
-                                if (!e.ctrlKey)
-                                    $("tr.info").toggleClass("info");
-                                $(this).toggleClass("info");
+                                if (e.ctrlKey)
+                                    $(this).toggleClass("info");
+                                else {
+                                    $("tr.info").removeClass("info");
+                                    $(this).addClass("info");
+                                }
+                                if (e.shiftKey) {
+                                    var songItems = $('#playlist tr:not(.hide)');
+                                    var startIndex = lastSelected ? songItems.index(lastSelected) : 0,
+                                        endIndex = songItems.index(this);
+                                    if (startIndex > endIndex) {
+                                        var temp = startIndex;
+                                        startIndex = endIndex;
+                                        endIndex = temp + 1;
+                                    }
+                                    else
+                                        endIndex++;
+                                    songItems.slice(startIndex, endIndex).addClass("info");
+                                }
+                                else
+                                    lastSelected = this;
                             })
                             .dblclick(function () {
                                 var $this = $(this);
@@ -219,24 +253,29 @@
                             filename.indexOf(".oga") == filename.length - 4) && ogg)) {
                             playlist.push(filename);
                             if (empty) {
-                                empty = false;
-                                $("#import").appendTo($("header"));
-                                $("#guide").remove();
+                                importButton.remove().appendTo($("header")).click(function () {
+                                    fileSelector.click();
+                                });
+                                guidePanel.hide();
                             }
                             blobUrl = URL.createObjectURL(file);
                             audio.attr("src", blobUrl);
                         }
+                        else
+                            loadSong();
                     }
                 }
                 loadSong();
             });
 
-        $("#import").click(function () {
-            file.click();
+        var guidePanel = $("#guide");
+        var importButton = $("#import").click(function () {
+            fileSelector.click();
         });
 
         var filter = $("#filter");
-        filter.keydown(function () {
+        filter.keyup(function (e) {
+            e.stopPropagation();
             var value = filter.val();
             if (value == "")
                 $("#playlist tr").show();
@@ -245,11 +284,17 @@
                 $("#playlist tr").each(function () {
                     var ele = $(this);
                     if (ele.text().match(regex))
-                        ele.show();
+                        ele.removeClass("hide");
                     else
-                        ele.hide();
+                        ele.addClass("hide");
                 });
             }
+        });
+
+        $(document).keyup(function (e) {
+            console.log(e.keyCode);
+            if(e.ctrlKey&&e.keyCode==65) // Ctrl + A
+                e.preventDefault();
         });
     </script>
     <script>
