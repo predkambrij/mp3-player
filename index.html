@@ -3,105 +3,21 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" manifest="/cache.manifest">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MP3 Player</title>
     <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
-    <style>
-        html, body {
-            height: 100%;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-
-        header {
-            height: 70px;
-            width: 100%;
-        }
-
-        h1 {
-            float: left;
-            margin-left: 2%;
-        }
-
-        h1, h3 {
-            cursor: default;
-        }
-
-        #filter {
-            float: right;
-            margin-top: 15px;
-            margin-right: 3%;
-        }
-
-        #file {
-            width: 0;
-            opacity: 0;
-        }
-
-        header > #import {
-            float: right;
-            margin-top: 15px;
-            margin-right: 10px;
-        }
-
-        section {
-            position: absolute;
-            top: 70px;
-            bottom: 35px;
-            width: 100%;
-            height: auto;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            -webkit-user-select: none;
-            user-select: none;
-            overflow-y: auto;
-        }
-
-        table {
-            cursor: default;
-        }
-
-
-
-        #guide {
-            position: absolute;
-            top: 30px;
-            bottom: 0;
-            width: 100%;
-            vertical-align: middle;
-        }
-
-        footer {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-        }
-
-        audio {
-            width: 100%;
-            height: 35px;
-        }
-
-        .contextmenu {
-            background: white;
-        }
-
-        .menuitem td {
-            padding-left: 20px;
-            padding-right: 60px;
-        }
-    </style>
+    <link rel="stylesheet" href="main.css" />
 </head>
 <body>
     <header>
         <h1>Media Libary</h1>
-        <input id="filter" class="search-query" type="text" placeholder="Type to filter" />
+        <div class="input-append">
+            <input id="filter" class="search-query" type="text" placeholder="Type to filter" />
+            <button id="clear" class="btn">Clear</button>
+        </div>
         <input id="file" type="file" multiple="" accept="audio/*" />
         <!--- TODO: add WebKit directory support:  webkitdirectory="" mozdirectory="" directory=""  -->
     </header>
-    <section>
+    <section id="main-section">
         <table class="table table-hover">
             <thead>
                 <tr>
@@ -113,7 +29,9 @@
                     <td class="span1">Genre</td>
                 </tr>
             </thead>
-            <tbody id="playlist"></tbody>
+            <tbody id="playlist">
+                <tr id="nullTr" class="hide"></tr>
+            </tbody>
         </table>
         <div id="guide" class="text-center">
             <h3>Here is empty now</h3>
@@ -122,193 +40,22 @@
     </section>
     <footer>
         <audio controls=""></audio>
+        <div class="controls"></div>
     </footer>
-    <script src="jquery-1.9.1.min.js"></script>
+    <table id="contextmenu" class="table table-hover table-bordered">
+        <tr class="menuitem">
+            <td>Play</td>
+        </tr>
+        <tr class="menuitem">
+            <td>Delete</td>
+        </tr>
+        <tr class="menuitem">
+            <td>Detail</td>
+        </tr>
+    </table>
+    <script src="jquery-2.0.1.min.js"></script>
     <script src="id3v2-new.js"></script>
-    <script>
-        var playlist = [];
-
-        function deleteSelect() {
-            var nowplaying = player.attr("src");
-            $("tr.info:not(.hide)").each(function () {
-                var $this = $(this);
-                if ($this.data("url") == nowplaying)
-                    player.attr("src", "");
-                playlist.splice(playlist.indexOf($this.data("filename")), 1);
-                $this.remove();
-            });
-            if (playlist.length == 0) {
-                importButton.remove().appendTo(guidePanel).click(function () {
-                    fileSelector.click();
-                });
-                guidePanel.show();
-            }
-            lastSelected = null;
-        }
-
-        var lastSelected;
-        var contextmenu = $('<table />', { "class": "table table-hover table-bordered contextmenu" })
-            .append($("<tr />", { "class": "menuitem" }).append($("<td />").text("Play"))
-            .click(function () {
-                contextmenu.hide();
-                $("tr.info:not(.hide)").eq(0).dblclick();
-            }))
-            .append($("<tr />", { "class": "menuitem" }).append($("<td />").text("Delete"))
-            .click(function () {
-                contextmenu.hide();
-                deleteSelect();
-            }))
-            .append($("<tr />", { "class": "menuitem" }).append($("<td />").text("Detail"))
-            .click(function () {
-
-                contextmenu.hide();
-            }))
-            .css({ "position": "fixed", "width": "auto", "height": "auto" })
-            .hide().appendTo(document.body);
-        $(document).click(function (e) {
-            if (contextmenu.find(e.target).length == 0)
-                contextmenu.hide();
-        });
-
-        var player = $("audio").on("playing", function () {
-            $("tr.success i").removeClass("icon-pause").addClass("icon-play");
-        }).on("pause", function () {
-            $("tr.success i").removeClass("icon-play").addClass("icon-pause");
-        }),
-            fileSelector = $("#file").change(function () {
-                var files = this.files;
-                var mp3 = player[0].canPlayType("audio/mpeg") == "maybe",
-                    ogg = player[0].canPlayType("audio/ogg") == "maybe";
-                var i = 0;
-                var file, filename, blobUrl;
-                var empty = playlist.length == 0;
-                var audio = $('<audio preload="metadata" />').on("loadedmetadata", function () {
-                    var duration = audio.prop("duration");
-                    var second = (duration % 60).toFixed();
-                    if (second.toString().length == 1)
-                        second = "0" + second;
-                    readFile(file, function (tag) {
-                        $("#playlist").append(
-                            $("<tr />")
-                            .data("url", blobUrl)
-                            .data("filename", filename)
-                            .click(function (e) {
-                                if (e.ctrlKey)
-                                    $(this).toggleClass("info");
-                                else {
-                                    $("tr.info").removeClass("info");
-                                    $(this).addClass("info");
-                                }
-                                if (e.shiftKey) {
-                                    var songItems = $("#playlist tr:not(.hide)");
-                                    var startIndex = lastSelected ? songItems.index(lastSelected) : 0,
-                                        endIndex = songItems.index(this);
-                                    if (startIndex > endIndex) {
-                                        var temp = startIndex;
-                                        startIndex = endIndex;
-                                        endIndex = temp + 1;
-                                    }
-                                    else
-                                        endIndex++;
-                                    songItems.slice(startIndex, endIndex).addClass("info");
-                                }
-                                else
-                                    lastSelected = this;
-                            })
-                            .dblclick(function () {
-                                var $this = $(this);
-                                var playerElement = player.on("playing", function seek() {
-                                    this.currentTime = 3;
-                                    this.currentTime = 0;
-                                    $(this).unbind("playing", seek);
-                                }).attr("src", $this.data("url"))[0]
-                                playerElement.play();
-                                $("tr.success").removeClass("success").find("i").removeClass("icon-pause").removeClass("icon-play");
-                                $this.addClass("success");
-                            })
-                            .on("contextmenu", function (e) {
-                                e.preventDefault();
-                                var $this = $(this);
-                                if (!$this.hasClass("info"))
-                                    $this.click();
-                                var width = contextmenu.width(), height = contextmenu.height();
-                                contextmenu.css({
-                                    "left": Math.max(0, Math.min(e.clientX, innerWidth - width)) + "px",
-                                    "top": Math.max(0, Math.min(e.clientY, innerHeight - height)) + "px"
-                                }).show();
-                            })
-                            .append($("<td />").append($("<i />")))
-                            .append($("<td />").text(tag["frames"]["TIT2"] ? tag["frames"]["TIT2"]["value"] : filename.substr(0, filename.length - 4)))
-                            .append($("<td />").text(tag["frames"]["TALB"] ? tag["frames"]["TALB"]["value"] : "Unknown"))
-                            .append($("<td />").text((duration > 3600 ? parseInt(duration / 3600) + ":" : "") +
-                                (duration > 60 ? parseInt(duration / 60) : "0") + ":" + second))
-                            .append($("<td />").text(tag["frames"]["TPE1"] ? tag["frames"]["TPE1"]["value"] : "Unknown"))
-                            .append($("<td />").text(tag["frames"]["TCON"] ? tag["frames"]["TCON"]["value"] : "Unknown"))
-                        );
-                        loadSong();
-                    });
-                });
-                function loadSong() {
-                    if (i < files.length) {
-                        file = files[i++];
-                        filename = file.name;
-                        if (playlist.indexOf(filename) == -1 &&
-                            (filename.indexOf(".mp3") == filename.length - 4 && mp3) ||
-                            ((filename.indexOf(".ogg") == filename.length - 4 ||
-                            filename.indexOf(".oga") == filename.length - 4) && ogg)) {
-                            playlist.push(filename);
-                            if (empty) {
-                                importButton.remove().appendTo($("header")).click(function () {
-                                    fileSelector.click();
-                                });
-                                guidePanel.hide();
-                            }
-                            blobUrl = URL.createObjectURL(file);
-                            audio.attr("src", blobUrl);
-                        }
-                        else
-                            loadSong();
-                    }
-                }
-                loadSong();
-            });
-
-        var guidePanel = $("#guide");
-        var importButton = $("#import").click(function () {
-            fileSelector.click();
-        });
-
-        var filter = $("#filter");
-        filter.keydown(function (e) {
-            e.stopPropagation();
-        })
-            .keyup(function (e) {
-                e.stopPropagation();
-                var value = filter.val();
-                if (value == "")
-                    $("#playlist tr").show();
-                else {
-                    var regex = new RegExp(value, "i");
-                    $("#playlist tr").each(function () {
-                        var ele = $(this);
-                        if (ele.text().match(regex))
-                            ele.removeClass("hide");
-                        else
-                            ele.addClass("hide");
-                    });
-                }
-            });
-
-        $(document).keydown(function (e) {
-            console.log(e.keyCode);
-            if (e.ctrlKey && e.keyCode == 65) { // Ctrl + A
-                e.preventDefault();
-                $("#playlist tr:not(.hide)").addClass("info");
-            }
-            else if (e.keyCode == 46) // Delete
-                deleteSelect();
-        });
-    </script>
+    <script src="main.js"></script>
     <script>
         (function (i, s, o, g, r, a, m) {
             i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {

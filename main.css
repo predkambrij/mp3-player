@@ -1,0 +1,103 @@
+﻿
+html, body {
+    height: 100%;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+header {
+    height: 70px;
+    width: 100%;
+}
+
+h1 {
+    float: left;
+    margin-left: 2%;
+}
+
+h1, h3 {
+    cursor: default;
+}
+
+.input-append {
+    position: relative;
+    float: right;
+    margin-top: 15px;
+    margin-right: 3%;
+}
+
+    .input-append input.search-query {
+        position: relative;
+        margin-bottom: 0;
+        vertical-align: top;
+        -webkit-border-radius: 15px;
+        -moz-border-radius: 15px;
+        border-radius: 15px;
+    }
+
+    .input-append button.btn:last-child {
+        -webkit-border-radius: 0 15px 15px 0;
+        -moz-border-radius: 0 15px 15px 0;
+        border-radius: 0 15px 15px 0;
+        z-index: 3;
+    }
+
+#clear {
+    position: absolute;
+    right: 0;
+    display: none;
+}
+
+#file {
+    width: 0;
+    opacity: 0;
+}
+
+header > #import {
+    float: right;
+    margin-top: 15px;
+    margin-right: 10px;
+}
+
+section {
+    width: 100%;
+    height: calc(100% - 122px);
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    overflow-y: auto;
+}
+
+table {
+    cursor: default;
+}
+
+#nullTr {
+    height: 20px;
+    display: table-row !important;
+}
+
+footer {
+    width: 100%;
+}
+
+audio {
+    display: block;
+    height: 52px;
+    width: calc(100% - 50px);
+}
+
+#contextmenu {
+    position: fixed;
+    width: auto;
+    height: auto;
+    background: white;
+}
+
+.menuitem td {
+    padding-left: 20px;
+    padding-right: 60px;
+}
