@@ -1,15 +1,16 @@
-﻿
-html, body {
+﻿html, body {
     height: 100%;
     -moz-user-select: none;
     -ms-user-select: none;
     -webkit-user-select: none;
     user-select: none;
+    overflow: hidden;
 }
 
 header {
     height: 70px;
     width: 100%;
+    color: rgb(116, 116, 116);
 }
 
 h1 {
@@ -63,12 +64,14 @@ header > #import {
 
 section {
     width: 100%;
-    height: calc(100% - 122px);
+    height: calc(100% - 129px);
     -moz-user-select: none;
     -ms-user-select: none;
     -webkit-user-select: none;
     user-select: none;
     overflow-y: auto;
+    background: rgb(229, 229, 229);
+    border-top: rgb(209, 209, 209) 1px solid;
 }
 
 table {
@@ -81,13 +84,11 @@ table {
 }
 
 footer {
+    position: relative;
     width: 100%;
-}
-
-audio {
-    display: block;
-    height: 52px;
-    width: calc(100% - 50px);
+    height: 58px;
+    padding-top: 5px;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.3);
 }
 
 #contextmenu {
@@ -101,3 +102,120 @@ audio {
     padding-left: 20px;
     padding-right: 60px;
 }
+
+#progress-wrapper {
+    position: absolute;
+    top: -3px;
+    width: 100%;
+    height: 6px;
+}
+
+#slider-background {
+    position: absolute;
+    width: 100%;
+    top: 1px;
+    height: 2px;
+    background-color: rgb(238, 238, 238);
+    border: 1px solid rgb(204, 204, 204);
+}
+
+#slider-foreground {
+    position: absolute;
+    top: 2px;
+    height: 2px;
+    width: 0;
+    background-color: rgb(253, 133, 0);
+}
+
+#slider-thumb {
+    position: absolute;
+    cursor: pointer;
+    left: -7px;
+    top: -5px;
+    height: 14px;
+    width: 14px;
+    border-radius: 7px;
+    background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);
+    border: 1px solid #cccccc;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+#buttons-wrapper {
+    height: 53px;
+}
+
+.control {
+    cursor: pointer;
+    display: inline-block;
+    height: 53px;
+    background-image: url("sprites.png");
+    background-repeat: no-repeat;
+}
+
+    .control:hover {
+        background-color: rgb(232, 232, 232);
+    }
+
+    .control:active {
+        background-color: rgb(213, 213, 213);
+    }
+
+    .control.disabled {
+        opacity: .2;
+        cursor: default;
+    }
+
+        .control.disabled:hover,
+        .control.disabled:active {
+            background-color: transparent;
+        }
+
+#control-loop {
+    width: 53px;
+}
+
+    #control-loop.no-repeat {
+        background-position: -3065px -288px;
+    }
+
+    #control-loop.list-repeat {
+        background-position: -2561px -717px;
+    }
+
+    #control-loop.single-repeat {
+        background-position: -3103px -1238px;
+    }
+
+#control-previous {
+    width: 63px;
+    background-position: -2497px -703px;
+}
+
+#control-play {
+    width: 63px;
+}
+
+    #control-play.play {
+        background-position: -258px -1143px;
+    }
+
+    #control-play.pause {
+        background-position: -3041px -976px;
+    }
+
+#control-next {
+    width: 63px;
+    background-position: -651px -1199px;
+}
+
+#control-shuffle {
+    width: 53px;
+}
+
+    #control-shuffle.no-shuffle {
+        background-position: -1541px -856px;
+    }
+
+    #control-shuffle.shuffle {
+        background-position: 0 -946px;
+    }
