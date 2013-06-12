@@ -88,7 +88,7 @@ footer {
     width: 100%;
     height: 58px;
     padding-top: 5px;
-    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px -3px 8px rgba(0, 0, 0, 0.3);
 }
 
 #contextmenu {
@@ -105,50 +105,50 @@ footer {
 
 #progress-wrapper {
     position: absolute;
-    top: -3px;
+    top: -4px;
     width: 100%;
-    height: 6px;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0.01);
 }
 
-#slider-background {
-    position: absolute;
-    width: 100%;
-    top: 1px;
-    height: 2px;
-    background-color: rgb(238, 238, 238);
-    border: 1px solid rgb(204, 204, 204);
-}
+    #progress-wrapper .slider-background {
+        position: absolute;
+        width: 100%;
+        top: 1px;
+        height: 2px;
+        background-color: rgb(238, 238, 238);
+        border: 1px solid rgb(204, 204, 204);
+    }
 
-#slider-foreground {
-    position: absolute;
-    top: 2px;
-    height: 2px;
-    width: 0;
-    background-color: rgb(253, 133, 0);
-}
+    #progress-wrapper .slider-foreground {
+        position: absolute;
+        top: 2px;
+        height: 2px;
+        width: 0;
+        background-color: rgb(253, 133, 0);
+    }
 
-#slider-thumb {
-    position: absolute;
-    cursor: pointer;
-    left: -7px;
-    top: -5px;
-    height: 14px;
-    width: 14px;
-    border-radius: 7px;
-    background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);
-    border: 1px solid #cccccc;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
-}
+    #progress-wrapper .slider-thumb {
+        position: absolute;
+        cursor: pointer;
+        left: -6px;
+        top: -3px;
+        height: 12px;
+        width: 12px;
+        border-radius: 6px;
+        background-color: rgb(85, 85, 85);
+    }
 
 #buttons-wrapper {
     height: 53px;
+    font-size: 0;
 }
 
 .control {
     cursor: pointer;
     display: inline-block;
     height: 53px;
-    background-image: url("sprites.png");
+    background-image: url("image/sprites.png");
     background-repeat: no-repeat;
 }
 
@@ -169,6 +169,12 @@ footer {
         .control.disabled:active {
             background-color: transparent;
         }
+
+#control-time {
+    display: inline-block;
+    height: 53px;
+    line-height: 53px;
+}
 
 #control-loop {
     width: 53px;
@@ -193,11 +199,8 @@ footer {
 
 #control-play {
     width: 63px;
+    background-position: -258px -1143px;
 }
-
-    #control-play.play {
-        background-position: -258px -1143px;
-    }
 
     #control-play.pause {
         background-position: -3041px -976px;
@@ -210,12 +213,81 @@ footer {
 
 #control-shuffle {
     width: 53px;
+    background-position: -1541px -856px;
 }
-
-    #control-shuffle.no-shuffle {
-        background-position: -1541px -856px;
-    }
 
     #control-shuffle.shuffle {
         background-position: 0 -946px;
+    }
+
+
+#control-volume {
+    width: 223px;
+    margin-right: -170px;
+    background-image: none;
+    overflow: hidden;
+    cursor: default;
+    line-height: 53px;
+}
+
+    #control-volume:active {
+        background-color: rgb(232, 232, 232);
+    }
+
+#volume-icon {
+    width: 53px;
+}
+
+    #volume-icon.volume-mute {
+        background-position: -3065px -142px;
+    }
+
+    #volume-icon.volume-low {
+        background-position: -1230px -758px;
+    }
+
+    #volume-icon.volume-middle {
+        background-position: -190px -1141px;
+    }
+
+    #volume-icon.volume-high {
+        background-position: -3042px -863px;
+    }
+
+#volume-slider {
+    position: relative;
+    display: inline-block;
+    margin: 0 20px;
+    top: -22px;
+    width: 130px;
+    height: 8px;
+}
+
+    #volume-slider .slider-background {
+        position: absolute;
+        width: 100%;
+        top: 2px;
+        height: 2px;
+        background-color: rgb(64, 64, 64);
+    }
+
+    #volume-slider .slider-foreground {
+        position: absolute;
+        top: 2px;
+        height: 2px;
+        width: 0;
+        background-color: rgb(253, 133, 0);
+    }
+
+    #volume-slider .slider-thumb {
+        position: absolute;
+        cursor: pointer;
+        left: -7px;
+        top: -5px;
+        height: 14px;
+        width: 14px;
+        border-radius: 7px;
+        background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);
+        border: 1px solid #cccccc;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
     }

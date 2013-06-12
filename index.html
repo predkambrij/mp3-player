@@ -4,8 +4,9 @@
 <head>
     <meta charset="utf-8" />
     <title>MP3 Player</title>
-    <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="main.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <link rel="stylesheet" href="style/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="style/main.css" />
 </head>
 <body>
     <header>
@@ -40,18 +41,26 @@
     </section>
     <footer>
         <div id="progress-wrapper">
-            <div id="slider-background"></div>
-            <div id="slider-foreground"></div>
-            <div id="slider-thumb"></div>
+            <div class="slider-background"></div>
+            <div class="slider-foreground"></div>
+            <div class="slider-thumb"></div>
         </div>
         <div id="buttons-wrapper" class="text-center">
-            <div id="control-loop" class="control no-repeat"></div>
+            <div id="control-time">0:00</div>
+            <div id="control-loop" class="control"></div>
             <div id="control-previous" class="control disabled"></div>
-            <div id="control-play" class="control play disabled"></div>
+            <div id="control-play" class="control disabled"></div>
             <div id="control-next" class="control disabled"></div>
-            <div id="control-shuffle" class="control no-shuffle"></div>
+            <div id="control-shuffle" class="control"></div>
+            <div id="control-volume" class="control text-left">
+                <div id="volume-icon" class="control"></div>
+                <div id="volume-slider">
+                    <div class="slider-background"></div>
+                    <div class="slider-foreground"></div>
+                    <div class="slider-thumb"></div>
+                </div>
+            </div>
         </div>
-        <div id="control-mute" class="hide"></div>
     </footer>
     <table id="contextmenu" class="table table-hover table-bordered">
         <tr class="menuitem">
@@ -64,9 +73,9 @@
             <td>Detail</td>
         </tr>
     </table>
-    <script src="jquery-2.0.1.js"></script>
-    <script src="id3v2-new.js"></script>
-    <script src="main.js"></script>
+    <script src="script/jquery-2.0.1.js"></script>
+    <script src="script/id3.js"></script>
+    <script src="script/main.js"></script>
     <script>
         (function (i, s, o, g, r, a, m) {
             i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
