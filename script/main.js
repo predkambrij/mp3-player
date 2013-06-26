@@ -154,6 +154,15 @@ function loadFiles(files, insertPoint) {
                         else
                             lastSelected = this;
                     }).dblclick(function () {
+                        if (Notification)
+                            Notification.requestPermission(function (permission) {
+                                if (permission == "granted")
+                                    new Notification("NowPlaying", {
+                                        "body": item.data("artist") + " - " + item.data("title")
+                                    }).onshow = function () {
+                                        setTimeout(this.close, 2000);
+                                    };
+                            });
                         player.on("playing", function seek() {
                             this.currentTime = 3;
                             this.currentTime = 0;
@@ -295,8 +304,7 @@ function Slider(element) {
     this.element = $(element).mousedown(function (e) {
         if (enabled && e.button == 0) {
             $this.val((e.pageX - $this.element.offset().left) / $this.element.width());
-            for (var i = 0; i < handlers["dragend"].length; i++)
-                handlers["dragend"][i].call($this);
+            $this.thumb.trigger(e);
         }
     });
     this.background = this.element.find(".slider-background");
