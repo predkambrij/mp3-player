@@ -154,7 +154,7 @@ function loadFiles(files, insertPoint) {
                         else
                             lastSelected = this;
                     }).dblclick(function () {
-                        if (Notification)
+                        if (window.Notification)
                             Notification.requestPermission(function (permission) {
                                 if (permission == "granted")
                                     new Notification("NowPlaying", {
