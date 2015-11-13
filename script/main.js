@@ -26,8 +26,7 @@ function playlistChanged() {
         previousButton.addClass("disabled");
         nextButton.addClass("disabled");
         playButton.addClass("disabled");
-    }
-    else {
+    } else {
         importButton.appendTo($("header"));
         guidePanel.hide();
 
@@ -38,15 +37,18 @@ function playlistChanged() {
 }
 
 var contextmenu = $("#contextmenu").hide();
-var menuitems = contextmenu.children();
+var menuitems   = contextmenu.children();
+
 menuitems.eq(0).click(function () {
     contextmenu.hide();
     playlist.find("tr.info:not(.hide)").first().dblclick();
 });
+
 menuitems.eq(1).click(function () {
     contextmenu.hide();
     deleteSelect();
 });
+
 menuitems.eq(2).click(function () {
     contextmenu.hide();
     // TODO: Show detail dialog.
@@ -57,64 +59,65 @@ $(document).click(function (e) {
         contextmenu.hide();
 });
 
-var playlist = $("#playlist"), nullTr = $("#nullTr");
-$("#main-section").on("dragenter", function (e) {
-    var dataTransfer = e.originalEvent.dataTransfer;
+var playlist = $("#playlist"),
+    nullTr   = $("#nullTr");
 
-    if (selectedItems) {
-        e.preventDefault();
-        dataTransfer.dropEffect = "move";
-        nullTr.css("border-top", "solid 2px gray");
-    }
-    else if (dataTransfer.types.contains("Files")) {
-        e.preventDefault();
-        dataTransfer.dropEffect = "copy";
-        nullTr.css("border-top", "solid 2px gray");
-    }
-}).on("dragover", function (e) {
-    var dataTransfer = e.originalEvent.dataTransfer;
+$("#main-section")
+    .on("dragenter", function (e) {
+        var dataTransfer = e.originalEvent.dataTransfer;
 
-    if (selectedItems) {
-        e.preventDefault();
-        dataTransfer.dropEffect = "move";
-        nullTr.css("border-top", "solid 2px gray");
-    }
-    else if (dataTransfer.types.contains("Files")) {
-        e.preventDefault();
-        dataTransfer.dropEffect = "copy";
-        nullTr.css("border-top", "solid 2px gray");
-    }
-}).on("dragleave", function (e) {
-    nullTr.css("border-top", "none");
-}).on("drop", function (e) {
-    var dataTransfer = e.originalEvent.dataTransfer;
+        if (selectedItems) {
+            e.preventDefault();
+            dataTransfer.dropEffect = "move";
+            nullTr.css("border-top", "solid 2px gray");
+        } else if (dataTransfer.types.contains("Files")) {
+            e.preventDefault();
+            dataTransfer.dropEffect = "copy";
+            nullTr.css("border-top", "solid 2px gray");
+        }
+    }).on("dragover", function (e) {
+        var dataTransfer = e.originalEvent.dataTransfer;
 
-    if (selectedItems) {
-        e.preventDefault();
-        selectedItems.insertBefore(nullTr);
-        selectedItems = null;
+        if (selectedItems) {
+            e.preventDefault();
+            dataTransfer.dropEffect = "move";
+            nullTr.css("border-top", "solid 2px gray");
+        } else if (dataTransfer.types.contains("Files")) {
+            e.preventDefault();
+            dataTransfer.dropEffect = "copy";
+            nullTr.css("border-top", "solid 2px gray");
+        }
+    }).on("dragleave", function (e) {
         nullTr.css("border-top", "none");
-    }
-    else if (dataTransfer.types.contains("Files")) {
-        e.preventDefault();
-        loadFiles(dataTransfer.files, nullTr);
-        nullTr.css("border-top", "none");
-    }
-});
+    }).on("drop", function (e) {
+        var dataTransfer = e.originalEvent.dataTransfer;
+
+        if (selectedItems) {
+            e.preventDefault();
+            selectedItems.insertBefore(nullTr);
+            selectedItems = null;
+            nullTr.css("border-top", "none");
+        } else if (dataTransfer.types.contains("Files")) {
+            e.preventDefault();
+            loadFiles(dataTransfer.files, nullTr);
+            nullTr.css("border-top", "none");
+        }
+    });
 
 var knownFiles = [];
 function loadFiles(files, insertPoint) {
     var i = 0;
     var file, filename;
     var empty = knownFiles.length == 0;
+
     (function loadSong() {
         if (i < files.length) {
             file = files[i++];
             filename = file.name;
             if (knownFiles.indexOf(filename) == -1 &&
-                (filename.indexOf(".mp3") == filename.length - 4 && mp3) ||
-                ((filename.indexOf(".ogg") == filename.length - 4 ||
-                filename.indexOf(".oga") == filename.length - 4) && ogg)) {
+                    (filename.indexOf(".mp3") == filename.length - 4 && mp3) ||
+                    (filename.indexOf(".aac") == filename.length - 4 && true) ||
+                ((filename.indexOf(".ogg") == filename.length - 4 || filename.indexOf(".oga") == filename.length - 4) && ogg)) {
                 knownFiles.push(filename);
                 if (empty)
                     playlistChanged();
@@ -267,37 +270,45 @@ function loadFiles(files, insertPoint) {
     })();
 }
 
-var shuffle = false, playing = false, nowPlaying = null;
+var shuffle    = false,
+    playing    = false,
+    nowPlaying = null;
 
 var player = $("<audio />").on("playing", function () {
-    playlist.find("tr.success i")
-        .removeClass("icon-stop")
-        .removeClass("icon-pause")
-        .addClass("icon-play");
-    playing = true;
-    playButton.addClass("pause");
-    progress.enable();
-}).on("pause", function () {
-    playlist.find("tr.success i").removeClass("icon-play").addClass("icon-pause");
-    playing = false;
-    playButton.removeClass("pause");
-}).on("ended", function () {
-    playlist.find("tr.success i").removeClass("icon-play").addClass("icon-stop");
-    playing = false;
-    playButton.removeClass("pause");
-    progress.disable();
-    if (loop == 1)
-        nowPlaying.dblclick();
-    if (loop == 2)
-        nextButton.click();
-}).on("timeupdate", function () {
-    if (!dragging)
-        progress.val(player.prop("currentTime") / player.prop("duration"));
-}), mp3 = player[0].canPlayType("audio/mpeg") == "maybe",
-ogg = player[0].canPlayType("audio/ogg") == "maybe",
-fileSelector = $("#file").change(function () {
-    loadFiles(this.files, nullTr);
-});
+        playlist.find("tr.success i")
+            .removeClass("icon-stop")
+            .removeClass("icon-pause")
+            .addClass("icon-play");
+        playing = true;
+        playButton.addClass("pause");
+        progress.enable();
+    }).on("pause", function () {
+        playlist.find("tr.success i").removeClass("icon-play").addClass("icon-pause");
+        playing = false;
+        playButton.removeClass("pause");
+    }).on("ended", function () {
+        playlist.find("tr.success i").removeClass("icon-play").addClass("icon-stop");
+        playing = false;
+        playButton.removeClass("pause");
+        progress.disable();
+
+        if (loop == 1)
+            nextButton.click();
+        if (loop == 2)
+            nowPlaying.dblclick();
+
+    }).on("timeupdate", function () {
+        if (!dragging)
+            progress.val(player.prop("currentTime") / player.prop("duration"));
+    }),
+
+    mp3 = player[0].canPlayType("audio/mpeg") == "maybe",
+
+    ogg = player[0].canPlayType("audio/ogg") == "maybe",
+
+    fileSelector = $("#file").change(function () {
+        loadFiles(this.files, nullTr);
+    });
 
 function Slider(element) {
     var $this = this;
@@ -386,6 +397,7 @@ function Slider(element) {
 }
 
 var dragging = false;
+
 var progress = new Slider($("#progress-wrapper")).on("dragstart", function () {
     dragging = true;
 }).on("dragend", function () {
@@ -410,7 +422,9 @@ var loopButton = $("#control-loop").click(function () {
     }
     localStorage.setItem("loop", loop);
 });
+
 var loop = parseInt(localStorage.getItem("loop")) || 0;
+
 switch (loop) {
     case 0:
         loopButton.addClass("no-repeat");
@@ -428,6 +442,7 @@ var shuffleButton = $("#control-shuffle").click(function () {
     shuffle = !shuffle;
     localStorage.setItem("shuffle", shuffle);
 });
+
 if (localStorage.getItem("shuffle") == "true") {
     shuffleButton.addClass("shuffle");
     shuffle = true;
@@ -450,6 +465,7 @@ var previousButton = $("#control-previous").click(function () {
         next.dblclick();
     }
 });
+
 var nextButton = $("#control-next").click(function () {
     if (!nextButton.hasClass("disabled")) {
         var songItems = playlist.children();
@@ -466,6 +482,7 @@ var nextButton = $("#control-next").click(function () {
         next.dblclick();
     }
 });
+
 var playButton = $("#control-play").click(function () {
     if (!playButton.hasClass("disabled")) {
         if (playing)
@@ -501,7 +518,9 @@ function toggleVolumeLevel(value) {
             .removeClass("volume-middle")
             .addClass("volume-high");
 }
+
 var oldVolume = 0, isMute = false, volumeContainer = $("#control-volume");
+
 var muteButton = $("#volume-icon").click(function () {
     if (isMute)
         volumeSlider.val(oldVolume);
@@ -511,6 +530,7 @@ var muteButton = $("#volume-icon").click(function () {
     }
     isMute = !isMute;
 });
+
 var volumeSlider = new Slider($("#volume-slider")).on("dragstart", function () {
     volumeContainer.addClass("hover");
 }).on("change", function (value) {
@@ -522,12 +542,14 @@ var volumeSlider = new Slider($("#volume-slider")).on("dragstart", function () {
 }).val(localStorage.getItem("volume") !== null ? parseFloat(localStorage.getItem("volume")) : 0.5);
 
 var guidePanel = $("#guide");
+
 var importButton = $("#import").click(function () {
     fileSelector.click();
 });
 
 var filter = $("#filter"),
-    clear = $("#clear");
+    clear  = $("#clear");
+
 filter.keypress(function (e) {
     e.stopPropagation();
 }).keyup(function (e) {
@@ -553,6 +575,7 @@ filter.keypress(function (e) {
         filter.keyup();
     }, 100);
 });
+
 clear.click(function (e) {
     filter.val("").keyup().focus();
 });
