@@ -569,7 +569,7 @@ var importFromServerButton = $("#importFromServer").click(function () {
                     var url = data[collection]["urlPrefix"] + subfolder + "/" + encodeURIComponent(songName);
                     if (knownFiles.indexOf(songName) == -1) {
                         knownFiles.push(songName);
-                        var item = buildTableItem(null, null, songName, "album", "artist", "genre", "duration", url);
+                        var item = buildTableItem(null, null, songName, subfolder, "artist", "genre", "duration", url);
                         item.insertBefore(nullTr);
                     }
                 });
