@@ -104,6 +104,149 @@ $("#main-section")
         }
     });
 
+function buildTableItem(filename, file, title, album, artist, genre, duration, url) {
+    if (url == null) {
+        url = URL.createObjectURL(file);
+    }
+    var item = $("<tr />", { "draggable": "true" }).data({
+        "url": url,
+        "filename": filename,
+        "title": title,
+        "album": album,
+        "artist": artist,
+        "genre": genre
+    }).click(function (e) {
+        if (e.ctrlKey)
+            item.toggleClass("info");
+        else {
+            $("tr.info").removeClass("info");
+            item.addClass("info");
+        }
+        if (e.shiftKey) {
+            var songItems = playlist.find("tr:not(.hide)");
+            var startIndex = lastSelected ? songItems.index(lastSelected) : 0,
+                endIndex = songItems.index(this);
+            if (startIndex > endIndex) {
+                var temp = startIndex;
+                startIndex = endIndex;
+                endIndex = temp + 1;
+            }
+            else
+                endIndex++;
+            songItems.slice(startIndex, endIndex).addClass("info");
+        }
+        else
+            lastSelected = this;
+    }).dblclick(function () {
+        /*
+        if (window.Notification) {
+            Notification.requestPermission(function (permission) {
+                if (permission == "granted")
+                    new Notification("NowPlaying", {
+                        "body": item.data("artist") + " - " + item.data("title")
+                    }).onshow = function () {
+                        setTimeout(this.close, 2000);
+                    };
+            });
+        }*/
+
+        player.on("playing", function seek() {
+            this.currentTime = 3;
+            this.currentTime = 0;
+            $(this).off("playing", seek);
+        }).attr("src", item.data("url"))[0].play();
+
+        $("tr.success").removeClass("success").find("i").removeClass("icon-pause").removeClass("icon-play");
+        item.addClass("success");
+        nowPlaying = item;
+    }).on("contextmenu", function (e) {
+        e.preventDefault();
+        if (!item.hasClass("info"))
+            item.click();
+        var width = contextmenu.width(), height = contextmenu.height();
+        contextmenu.css({
+            "left": Math.max(0, Math.min(e.clientX, innerWidth - width)) + "px",
+            "top": Math.max(0, Math.min(e.clientY, innerHeight - height)) + "px"
+        }).show();
+    }).on("dragstart", function (e) {
+        var dataTransfer = e.originalEvent.dataTransfer;
+
+        dataTransfer.effectAllowed = "move";
+        dataTransfer.dropEffect = "move";
+
+        if (!item.hasClass("info"))
+            item.click();
+
+        selectedItems = playlist.find("tr.info:not(.hide)");
+
+        var titles = "";
+        selectedItems.each(function () {
+            titles += $(this).data("title") + "\r\n";
+        });
+        if (msie)
+            dataTransfer.setData("Text", titles);
+        else
+            dataTransfer.setData("text/plain", titles);
+    }).on("dragenter", function (e) {
+        var dataTransfer = e.originalEvent.dataTransfer;
+
+        if (selectedItems) {
+            e.preventDefault();
+            e.stopPropagation();
+            dataTransfer.dropEffect = "move";
+            item.css("border-top", "solid 2px gray");
+        }
+        else if (dataTransfer.types.contains("Files")) {
+            e.preventDefault();
+            e.stopPropagation();
+            dataTransfer.dropEffect = "copy";
+            item.css("border-top", "solid 2px gray");
+        }
+    }).on("dragover", function (e) {
+        var dataTransfer = e.originalEvent.dataTransfer;
+
+        if (selectedItems) {
+            e.preventDefault();
+            e.stopPropagation();
+            playlist.on("dragleave");
+            dataTransfer.dropEffect = "move";
+            item.css("border-top", "solid 2px gray");
+        }
+        else if (dataTransfer.types.contains("Files")) {
+            e.preventDefault();
+            e.stopPropagation();
+            playlist.on("dragleave");
+            dataTransfer.dropEffect = "copy";
+            item.css("border-top", "solid 2px gray");
+        }
+    }).on("dragleave", function (e) {
+        playlist.on("dragenter", e);
+        item.css("border-top", "none");
+    }).on("drop", function (e) {
+        var dataTransfer = e.originalEvent.dataTransfer;
+
+        if (selectedItems) {
+            e.preventDefault();
+            e.stopPropagation();
+            selectedItems.insertBefore(this);
+            selectedItems = null;
+            item.css("border-top", "none");
+        }
+        else if (dataTransfer.types.contains("Files")) {
+            e.preventDefault();
+            e.stopPropagation();
+            loadFiles(dataTransfer.files, this);
+            item.css("border-top", "none");
+        }
+    }).append($("<td />").append($("<i />")))
+        .append($("<td />").text(title))
+        .append($("<td />").text(album))
+        .append($("<td />").text(duration))
+        .append($("<td />").text(artist))
+        .append($("<td />").text(genre));
+    return item;
+}
+
 var knownFiles = [];
 function loadFiles(files, insertPoint) {
     var i = 0;
@@ -127,139 +270,8 @@ function loadFiles(files, insertPoint) {
                         artist = tag["frames"]["TPE1"] || "<Unknown>",
                         genre = tag["frames"]["TCON"] || "<Unknown>",
                         duration = tag["frames"]["TLEN"];
-                    var item = $("<tr />", { "draggable": "true" }).data({
-                        "url": URL.createObjectURL(file),
-                        "filename": filename,
-                        "title": title,
-                        "album": album,
-                        "artist": artist,
-                        "genre": genre
-                    }).click(function (e) {
-                        if (e.ctrlKey)
-                            item.toggleClass("info");
-                        else {
-                            $("tr.info").removeClass("info");
-                            item.addClass("info");
-                        }
-                        if (e.shiftKey) {
-                            var songItems = playlist.find("tr:not(.hide)");
-                            var startIndex = lastSelected ? songItems.index(lastSelected) : 0,
-                                endIndex = songItems.index(this);
-                            if (startIndex > endIndex) {
-                                var temp = startIndex;
-                                startIndex = endIndex;
-                                endIndex = temp + 1;
-                            }
-                            else
-                                endIndex++;
-                            songItems.slice(startIndex, endIndex).addClass("info");
-                        }
-                        else
-                            lastSelected = this;
-                    }).dblclick(function () {
-                        if (window.Notification)
-                            Notification.requestPermission(function (permission) {
-                                if (permission == "granted")
-                                    new Notification("NowPlaying", {
-                                        "body": item.data("artist") + " - " + item.data("title")
-                                    }).onshow = function () {
-                                        setTimeout(this.close, 2000);
-                                    };
-                            });
-                        player.on("playing", function seek() {
-                            this.currentTime = 3;
-                            this.currentTime = 0;
-                            $(this).off("playing", seek);
-                        }).attr("src", item.data("url"))[0].play();
-                        $("tr.success").removeClass("success").find("i").removeClass("icon-pause").removeClass("icon-play");
-                        item.addClass("success");
-                        nowPlaying = item;
-                    }).on("contextmenu", function (e) {
-                        e.preventDefault();
-                        if (!item.hasClass("info"))
-                            item.click();
-                        var width = contextmenu.width(), height = contextmenu.height();
-                        contextmenu.css({
-                            "left": Math.max(0, Math.min(e.clientX, innerWidth - width)) + "px",
-                            "top": Math.max(0, Math.min(e.clientY, innerHeight - height)) + "px"
-                        }).show();
-                    }).on("dragstart", function (e) {
-                        var dataTransfer = e.originalEvent.dataTransfer;
-
-                        dataTransfer.effectAllowed = "move";
-                        dataTransfer.dropEffect = "move";
-
-                        if (!item.hasClass("info"))
-                            item.click();
-
-                        selectedItems = playlist.find("tr.info:not(.hide)");
-
-                        var titles = "";
-                        selectedItems.each(function () {
-                            titles += $(this).data("title") + "\r\n";
-                        });
-                        if (msie)
-                            dataTransfer.setData("Text", titles);
-                        else
-                            dataTransfer.setData("text/plain", titles);
-                    }).on("dragenter", function (e) {
-                        var dataTransfer = e.originalEvent.dataTransfer;
-
-                        if (selectedItems) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            dataTransfer.dropEffect = "move";
-                            item.css("border-top", "solid 2px gray");
-                        }
-                        else if (dataTransfer.types.contains("Files")) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            dataTransfer.dropEffect = "copy";
-                            item.css("border-top", "solid 2px gray");
-                        }
-                    }).on("dragover", function (e) {
-                        var dataTransfer = e.originalEvent.dataTransfer;
-
-                        if (selectedItems) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            playlist.on("dragleave");
-                            dataTransfer.dropEffect = "move";
-                            item.css("border-top", "solid 2px gray");
-                        }
-                        else if (dataTransfer.types.contains("Files")) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            playlist.on("dragleave");
-                            dataTransfer.dropEffect = "copy";
-                            item.css("border-top", "solid 2px gray");
-                        }
-                    }).on("dragleave", function (e) {
-                        playlist.on("dragenter", e);
-                        item.css("border-top", "none");
-                    }).on("drop", function (e) {
-                        var dataTransfer = e.originalEvent.dataTransfer;
-
-                        if (selectedItems) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            selectedItems.insertBefore(this);
-                            selectedItems = null;
-                            item.css("border-top", "none");
-                        }
-                        else if (dataTransfer.types.contains("Files")) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            loadFiles(dataTransfer.files, this);
-                            item.css("border-top", "none");
-                        }
-                    }).append($("<td />").append($("<i />")))
-                        .append($("<td />").text(title))
-                        .append($("<td />").text(album))
-                        .append($("<td />").text(duration))
-                        .append($("<td />").text(artist))
-                        .append($("<td />").text(genre))
-                        .insertBefore(insertPoint);
+                    var item = buildTableItem(filename, file, title, album, artist, genre, duration, null);
+                    item.insertBefore(insertPoint);
                     filter.keyup();
                     loadSong();
                 });
@@ -546,7 +558,28 @@ var guidePanel = $("#guide");
 var importButton = $("#import").click(function () {
     fileSelector.click();
 });
+var importFromServerButton = $("#importFromServer").click(function () {
+    var jsonURL = $("#modalDialog").find('input[id="jsonURL"]').val();
 
+    $.getJSON(jsonURL, function(data) {
+        $.each(data, function(collection){
+            $.each(data[collection]["subfolders"], function(subfolder){
+                $.each(data[collection]["subfolders"][subfolder], function(songNameIndex){
+                    var songName = data[collection]["subfolders"][subfolder][songNameIndex];
+                    var url = data[collection]["urlPrefix"] + subfolder + "/" + encodeURIComponent(songName);
+                    if (knownFiles.indexOf(songName) == -1) {
+                        knownFiles.push(songName);
+                        var item = buildTableItem(null, null, songName, "album", "artist", "genre", "duration", url);
+                        item.insertBefore(nullTr);
+                    }
+                });
+            });
+        });
+
+        $("#modalDialog").modal('hide');
+        playlistChanged();
+    });
+});
 var filter = $("#filter"),
     clear  = $("#clear");
 
@@ -580,6 +613,7 @@ clear.click(function (e) {
     filter.val("").keyup().focus();
 });
 
+/*
 $(document).keydown(function (e) {
     switch (e.keyCode) {
         case 8: // Backspace
@@ -601,3 +635,4 @@ $(document).keydown(function (e) {
         filter.val(filter.val() + String.fromCharCode(e.charCode)).keyup();
     }
 });
+*/

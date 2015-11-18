@@ -37,6 +37,31 @@
         <div id="guide" class="text-center">
             <h3>Here is empty now</h3>
             <button id="import" class="btn">Import</button>
+            <button id="openDialog" class="btn" type="button" data-toggle="modal" data-target="#modalDialog">Import From Server</button>
+
+            <!-- Modal -->
+            <div class="modal fade" id="modalDialog" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="exampleModalLabel">Insert URL to json of your music collection</h4>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <input type="text" class="form-control" id="jsonURL" value="">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button id="importFromServer" type="button" class="btn btn-primary">Import</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </section>
     <footer>
@@ -74,6 +99,7 @@
         </tr>
     </table>
     <script src="script/jquery-2.0.1.min.js"></script>
+    <script src="style/bootstrap/js/bootstrap.min.js"></script>
     <script src="script/id3.js"></script>
     <script src="script/main.js"></script>
 
