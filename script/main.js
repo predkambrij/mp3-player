@@ -240,7 +240,7 @@ function buildTableItem(filename, file, title, album, artist, genre, duration, u
         }
     }).append($("<td />").append($("<i />")))
         .append($("<td />").text(title))
-        .append($("<td />").text(album))
+        .append($("<td />").text(album.split("_")[1]))
         .append($("<td />").text(duration))
         .append($("<td />").text(artist))
         .append($("<td />").text(genre));
@@ -559,8 +559,8 @@ var importButton = $("#import").click(function () {
     fileSelector.click();
 });
 var importFromServerButton = $("#importFromServer").click(function () {
-    var jsonURL = $("#modalDialog").find('input[id="jsonURL"]').val();
-
+    var jsonURL = (window.location.protocol+"//"+window.location.host+"/mp3/list/"
+        +"?domain="+encodeURIComponent(window.location.protocol+"//"+window.location.host));
     $.getJSON(jsonURL, function(data) {
         $.each(data, function(collection){
             $.each(data[collection]["subfolders"], function(subfolder){
